@@ -16,10 +16,6 @@ import serial
 # ser = serial.Serial('ttyACM1', baudrate = 9600, timeout=1)
 port = '/dev/ttyACM0'
 ard = serial.Serial(port,9600,timeout=5)
-ard.write(b'start')
-time.sleep(10.0)
-ard.write(b'stop')
-ard.close()
 def classify_frame(net, inputQueue, outputQueue):
 	# keep looping
 	while True:
@@ -146,6 +142,10 @@ while True:
 				# print(len(faces))
 				# print(len(faces))
 				if Interrup and (CLASSES[idx] == 'person'):
+					ard.write(b'start')
+					time.sleep(10.0)
+					ard.write(b'stop')
+					ard.close()
 					xV = tuple(box)
 					tracker.init(smoothed, xV)
 					Interrup=True
