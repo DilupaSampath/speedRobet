@@ -155,7 +155,7 @@ while True:
 					newX=x
 					newY=y
 					print("X ---> "+str(newX))
-					print("Y ---> "+str(newY))
+					print("Y ----> "+str(newY))
 					xV = tuple(box)
 					tracker.init(frame, xV)
 			# draw the prediction on the frame
