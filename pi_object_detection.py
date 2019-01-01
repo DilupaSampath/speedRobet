@@ -14,11 +14,11 @@ import cv2
 import serial
 
 # ser = serial.Serial('ttyACM1', baudrate = 9600, timeout=1)
-port = '/dev/ttyACM1'
-ard = serial.Serial(port,9600,timeout=5)
-ard.write(b'start')
-time.sleep(10.0)
-ard.close()
+# port = '/dev/ttyACM1'
+# ard = serial.Serial(port,9600,timeout=5)
+# ard.write(b'start')
+# time.sleep(10.0)
+# ard.close()
 def classify_frame(net, inputQueue, outputQueue):
 	# keep looping
 	while True:
