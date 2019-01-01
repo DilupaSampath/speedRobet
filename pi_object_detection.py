@@ -134,8 +134,8 @@ while True:
 		        minNeighbors=5,
 		        minSize=(35, 35)
 		    )
-			print(len(faces))
-			print(len(faces))
+			# print(len(faces))
+			# print(len(faces))
 			if Interrup and (CLASSES[idx] == 'person') or (len(faces) >0):
 				xV = tuple(box)
 				tracker.init(smoothed, xV)
@@ -143,7 +143,7 @@ while True:
 			# print(success)
 			# print(CLASSES[idx])
 
-			print(success)
+			# print(success)
 			if success:
 				if xV is not None and Interrup:
 					# Interrup=False
@@ -152,6 +152,10 @@ while True:
 					(0, 255, 0), 2)
 					# newX=x
 					# newY=y
+					newX=x
+					newY=y
+					print("X ---> "+str(newX))
+					print("Y ---> "+str(newY))
 					xV = tuple(box)
 					tracker.init(frame, xV)
 			# draw the prediction on the frame
@@ -172,7 +176,7 @@ while True:
 		break
 	if key == ord("s"):
 		Interrup=True
-		print('innnn')
+		# print('innnn')
 	# update the FPS counter
 	fps.update()
 
