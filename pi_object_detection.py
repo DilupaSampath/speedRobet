@@ -116,11 +116,20 @@ while True:
 			idx = int(detections[0, 0, i, 1])
 			dims = np.array([fW, fH, fW, fH])
 			box = detections[0, 0, i, 3:7] * dims
+			gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+			hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+			lower_red = np.array([30,150,50])
+			upper_red = np.array([255,255,180])
+			mask = cv2.inRange(hsv, lower_red, upper_red)
+			res = cv2.bitwise_and(frame,frame, mask= mask)
+			kernel = np.ones((15,15),np.float32)/225
+			smoothed = cv2.filter2D(res,-1,kernel)
 			(startX, startY, endX, endY) = box.astype("int")
 			if Interrup and CLASSES[idx] == 'person':
 				xV = tuple(box)
-				tracker.init(frame, xV)
-			(success, box) = tracker.update(frame)
+				tracker.init(smoothed, xV)
+			(success, box) = tracker.update(smoothed)
 			# print(success)
 			# print(CLASSES[idx])
 			if success:
