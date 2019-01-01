@@ -142,11 +142,11 @@ while True:
 				# print(len(faces))
 				# print(len(faces))
 				if Interrup and (CLASSES[idx] == 'person'):
-					ard = serial.Serial(port,9600,timeout=5)
-					ard.write(b'start')
-					time.sleep(10.0)
-					ard.write(b'stop')
-					ard.close()
+					# ard = serial.Serial(port,9600,timeout=5)
+					# ard.write(b'start')
+					# time.sleep(10.0)
+					# ard.write(b'stop')
+					# ard.close()
 					xV = tuple(box)
 					tracker.init(smoothed, xV)
 					Interrup=True
@@ -168,6 +168,18 @@ while True:
 						newY=y
 						print("X ---> "+str(newX))
 						print("Y ----> "+str(newY))
+						if newX<= 100:
+							ard = serial.Serial(port,9600,timeout=5)
+							ard.write(b'neck_left')
+						elif newX>= 200:
+							ard = serial.Serial(port,9600,timeout=5)
+							ard.write(b'neck_right')
+						else:
+							print('')
+							ard = serial.Serial(port,9600,timeout=5)
+							ard.close()
+						ard.close()
+
 						xV = tuple(box)
 						Interrup=False
 						tracker.init(frame, xV)
