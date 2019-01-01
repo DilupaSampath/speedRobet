@@ -135,6 +135,7 @@ while True:
 		        minSize=(35, 35)
 		    )
 			print(len(faces))
+			print(len(faces))
 			if Interrup and (CLASSES[idx] == 'person') or (len(faces) >0):
 				xV = tuple(box)
 				tracker.init(smoothed, xV)
