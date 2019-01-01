@@ -79,7 +79,7 @@ fps = FPS().start()
 xV=None
 co = True
 Interrup=False
-
+InterrupInside=False
 # loop over the frames from the video stream
 while True:
 	# grab the frame from the threaded video stream, resize it, and
@@ -128,24 +128,26 @@ while True:
 			smoothed = cv2.filter2D(res,-1,kernel)
 			res = cv2.bitwise_and(frame,frame, mask= mask)
 			(startX, startY, endX, endY) = box.astype("int")
-			faces = faceCascade.detectMultiScale(
-		        gray,
-		        scaleFactor=1.1,
-		        minNeighbors=5,
-		        minSize=(35, 35)
-		    )
+			# faces = faceCascade.detectMultiScale(
+		    #     gray,
+		    #     scaleFactor=1.1,
+		    #     minNeighbors=5,
+		    #     minSize=(35, 35)
+		    # )
 			# print(len(faces))
 			# print(len(faces))
-			if Interrup and (CLASSES[idx] == 'person') or (len(faces) >0):
+			if Interrup and (CLASSES[idx] == 'person'):
 				xV = tuple(box)
 				tracker.init(smoothed, xV)
+				Interrup=True
+				InterrupInside=True
 			(success, box) = tracker.update(smoothed)
 			# print(success)
 			# print(CLASSES[idx])
 
 			# print(success)
 			if success:
-				if xV is not None and Interrup:
+				if xV is not None and InterrupInside:
 					# Interrup=False
 					(x, y, w, h) = [int(v) for v in box]
 					cv2.rectangle(frame, (x, y), (x + w, y + h),
@@ -157,6 +159,7 @@ while True:
 					print("X ---> "+str(newX))
 					print("Y ----> "+str(newY))
 					xV = tuple(box)
+					Interrup=False
 					tracker.init(frame, xV)
 			# draw the prediction on the frame
 			# label = "{}: {:.2f}%".format(CLASSES[idx],
