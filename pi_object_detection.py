@@ -49,7 +49,8 @@ CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
 	"dog", "horse", "motorbike", "person", "pottedplant", "sheep",
 	"sofa", "train", "tvmonitor"]
 COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
-
+tracker_type='CSRT'
+tracker = cv2.TrackerCSRT_create()
 # load our serialized model from disk
 print("[INFO] loading model...")
 net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
@@ -75,7 +76,9 @@ vs = VideoStream(src=0).start()
 # vs = VideoStream(usePiCamera=True).start()
 time.sleep(2.0)
 fps = FPS().start()
-
+xV=None
+co = True
+Interrup=False
 # loop over the frames from the video stream
 while True:
 	# grab the frame from the threaded video stream, resize it, and
@@ -114,15 +117,30 @@ while True:
 			dims = np.array([fW, fH, fW, fH])
 			box = detections[0, 0, i, 3:7] * dims
 			(startX, startY, endX, endY) = box.astype("int")
-
+			if Interrup and CLASSES[idx] == 'person':
+				xV = tuple(box)
+				tracker.init(frame, xV)
+			(success, box) = tracker.update(frame)
+			# print(success)
+			# print(CLASSES[idx])
+			if success:
+				if xV is not None and Interrup:
+					# Interrup=False
+					(x, y, w, h) = [int(v) for v in box]
+					cv2.rectangle(frame, (x, y), (x + w, y + h),
+					(0, 255, 0), 2)
+					# newX=x
+					# newY=y
+					xV = tuple(box)
+					tracker.init(frame, xV)
 			# draw the prediction on the frame
-			label = "{}: {:.2f}%".format(CLASSES[idx],
-				confidence * 100)
-			cv2.rectangle(frame, (startX, startY), (endX, endY),
-				COLORS[idx], 2)
-			y = startY - 15 if startY - 15 > 15 else startY + 15
-			cv2.putText(frame, label, (startX, y),
-				cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
+			# label = "{}: {:.2f}%".format(CLASSES[idx],
+			# 	confidence * 100)
+			# cv2.rectangle(frame, (startX, startY), (endX, endY),
+			# 	COLORS[idx], 2)
+			# y = startY - 15 if startY - 15 > 15 else startY + 15
+			# cv2.putText(frame, label, (startX, y),
+			# 	cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
 
 	# show the output frame
 	cv2.imshow("Frame", frame)
@@ -131,14 +149,16 @@ while True:
 	# if the `q` key was pressed, break from the loop
 	if key == ord("q"):
 		break
-
+	if key == ord("s"):
+		Interrup=True
+		print('innnn')
 	# update the FPS counter
 	fps.update()
 
 # stop the timer and display FPS information
 fps.stop()
-print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
-print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+# print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
+# print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
