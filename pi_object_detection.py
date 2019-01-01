@@ -171,7 +171,7 @@ while True:
 						if newX<= 100:
 							ard = serial.Serial(port,9600,timeout=5)
 							ard.write(b'neck_left')
-						elif newX>= 200:
+						elif newX>= 100:
 							ard = serial.Serial(port,9600,timeout=5)
 							ard.write(b'neck_right')
 						else:
