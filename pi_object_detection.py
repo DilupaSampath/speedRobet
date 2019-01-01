@@ -38,10 +38,10 @@ ap.add_argument("-p", "--prototxt", required=True,
 	help="path to Caffe 'deploy' prototxt file")
 ap.add_argument("-m", "--model", required=True,
 	help="path to Caffe pre-trained model")
-ap.add_argument("-c", "--confidence", type=float, default=0.2,
+ap.add_argument("-c", "--confidence", type=float, default=0.1,
 	help="minimum probability to filter weak detections")
 args = vars(ap.parse_args())
-
+faceCascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
 # initialize the list of class labels MobileNet SSD was trained to
 # detect, then generate a set of bounding box colors for each class
 CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
@@ -79,6 +79,7 @@ fps = FPS().start()
 xV=None
 co = True
 Interrup=False
+
 # loop over the frames from the video stream
 while True:
 	# grab the frame from the threaded video stream, resize it, and
@@ -94,8 +95,8 @@ while True:
 
 	# if the output queue *is not* empty, grab the detections
 	if not outputQueue.empty():
-		detections = outputQueue.get()
 
+		detections = outputQueue.get()
 	# check to see if our detectios are not None (and if so, we'll
 	# draw the detections on the frame)
 	if detections is not None:
@@ -125,13 +126,23 @@ while True:
 			res = cv2.bitwise_and(frame,frame, mask= mask)
 			kernel = np.ones((15,15),np.float32)/225
 			smoothed = cv2.filter2D(res,-1,kernel)
+			res = cv2.bitwise_and(frame,frame, mask= mask)
 			(startX, startY, endX, endY) = box.astype("int")
-			if Interrup and CLASSES[idx] == 'person':
+			faces = faceCascade.detectMultiScale(
+		        gray,
+		        scaleFactor=1.1,
+		        minNeighbors=5,
+		        minSize=(35, 35)
+		    )
+			print(len(faces))
+			if Interrup and (CLASSES[idx] == 'person') or (len(faces) >0):
 				xV = tuple(box)
 				tracker.init(smoothed, xV)
 			(success, box) = tracker.update(smoothed)
 			# print(success)
 			# print(CLASSES[idx])
+
+			print(success)
 			if success:
 				if xV is not None and Interrup:
 					# Interrup=False
