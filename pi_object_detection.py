@@ -11,7 +11,14 @@ import argparse
 import imutils
 import time
 import cv2
+import serial
 
+# ser = serial.Serial('ttyACM0', baudrate = 9600, timeout=1)
+port = '/dev/ttyACM0'
+setTempCar1 = 'start/r'
+ard = serial.Serial(port,9600,timeout=5)
+setTemp1 = str(setTempCar1)
+ard.write(setTemp1)
 def classify_frame(net, inputQueue, outputQueue):
 	# keep looping
 	while True:
