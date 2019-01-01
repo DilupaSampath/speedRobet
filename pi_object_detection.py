@@ -14,11 +14,9 @@ import cv2
 import serial
 
 # ser = serial.Serial('ttyACM0', baudrate = 9600, timeout=1)
-port = '/dev/ttyACM0'
-setTempCar1 = 'start/r'
-ard = serial.Serial(port,9600,timeout=5)
-setTemp1 = str(setTempCar1)
-ard.write(setTemp1)
+# port = '/dev/ttyACM0'
+# ard = serial.Serial(port,9600,timeout=5)
+# ard.write(b'start')
 def classify_frame(net, inputQueue, outputQueue):
 	# keep looping
 	while True:
@@ -92,93 +90,94 @@ while True:
 	# grab the frame from the threaded video stream, resize it, and
 	# grab its imensions
 	frame = vs.read()
-	frame = imutils.resize(frame, width=400)
-	(fH, fW) = frame.shape[:2]
+	if(len(frame)>0):
+		frame = imutils.resize(frame, width=400)
+		(fH, fW) = frame.shape[:2]
 
-	# if the input queue *is* empty, give the current frame to
-	# classify
-	if inputQueue.empty():
-		inputQueue.put(frame)
+		# if the input queue *is* empty, give the current frame to
+		# classify
+		if inputQueue.empty():
+			inputQueue.put(frame)
 
-	# if the output queue *is not* empty, grab the detections
-	if not outputQueue.empty():
+		# if the output queue *is not* empty, grab the detections
+		if not outputQueue.empty():
 
-		detections = outputQueue.get()
-	# check to see if our detectios are not None (and if so, we'll
-	# draw the detections on the frame)
-	if detections is not None:
-		# loop over the detections
-		for i in np.arange(0, detections.shape[2]):
-			# extract the confidence (i.e., probability) associated
-			# with the prediction
-			confidence = detections[0, 0, i, 2]
+			detections = outputQueue.get()
+		# check to see if our detectios are not None (and if so, we'll
+		# draw the detections on the frame)
+		if detections is not None:
+			# loop over the detections
+			for i in np.arange(0, detections.shape[2]):
+				# extract the confidence (i.e., probability) associated
+				# with the prediction
+				confidence = detections[0, 0, i, 2]
 
-			# filter out weak detections by ensuring the `confidence`
-			# is greater than the minimum confidence
-			if confidence < args["confidence"]:
-				continue
+				# filter out weak detections by ensuring the `confidence`
+				# is greater than the minimum confidence
+				if confidence < args["confidence"]:
+					continue
 
-			# otherwise, extract the index of the class label from
-			# the `detections`, then compute the (x, y)-coordinates
-			# of the bounding box for the object
-			idx = int(detections[0, 0, i, 1])
-			dims = np.array([fW, fH, fW, fH])
-			box = detections[0, 0, i, 3:7] * dims
-			gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+				# otherwise, extract the index of the class label from
+				# the `detections`, then compute the (x, y)-coordinates
+				# of the bounding box for the object
+				idx = int(detections[0, 0, i, 1])
+				dims = np.array([fW, fH, fW, fH])
+				box = detections[0, 0, i, 3:7] * dims
+				gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-			hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-			lower_red = np.array([30,150,50])
-			upper_red = np.array([255,255,180])
-			mask = cv2.inRange(hsv, lower_red, upper_red)
-			res = cv2.bitwise_and(frame,frame, mask= mask)
-			kernel = np.ones((15,15),np.float32)/225
-			smoothed = cv2.filter2D(res,-1,kernel)
-			res = cv2.bitwise_and(frame,frame, mask= mask)
-			(startX, startY, endX, endY) = box.astype("int")
-			# faces = faceCascade.detectMultiScale(
-		    #     gray,
-		    #     scaleFactor=1.1,
-		    #     minNeighbors=5,
-		    #     minSize=(35, 35)
-		    # )
-			# print(len(faces))
-			# print(len(faces))
-			if Interrup and (CLASSES[idx] == 'person'):
-				xV = tuple(box)
-				tracker.init(smoothed, xV)
-				Interrup=True
-				InterrupInside=True
-			(success, box) = tracker.update(smoothed)
-			# print(success)
-			# print(CLASSES[idx])
-
-			# print(success)
-			if success:
-				if xV is not None and InterrupInside:
-					# Interrup=False
-					(x, y, w, h) = [int(v) for v in box]
-					cv2.rectangle(frame, (x, y), (x + w, y + h),
-					(0, 255, 0), 2)
-					# newX=x
-					# newY=y
-					newX=x
-					newY=y
-					print("X ---> "+str(newX))
-					print("Y ----> "+str(newY))
+				hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+				lower_red = np.array([30,150,50])
+				upper_red = np.array([255,255,180])
+				mask = cv2.inRange(hsv, lower_red, upper_red)
+				res = cv2.bitwise_and(frame,frame, mask= mask)
+				kernel = np.ones((15,15),np.float32)/225
+				smoothed = cv2.filter2D(res,-1,kernel)
+				res = cv2.bitwise_and(frame,frame, mask= mask)
+				(startX, startY, endX, endY) = box.astype("int")
+				# faces = faceCascade.detectMultiScale(
+			    #     gray,
+			    #     scaleFactor=1.1,
+			    #     minNeighbors=5,
+			    #     minSize=(35, 35)
+			    # )
+				# print(len(faces))
+				# print(len(faces))
+				if Interrup and (CLASSES[idx] == 'person'):
 					xV = tuple(box)
-					Interrup=False
-					tracker.init(frame, xV)
-			# draw the prediction on the frame
-			# label = "{}: {:.2f}%".format(CLASSES[idx],
-			# 	confidence * 100)
-			# cv2.rectangle(frame, (startX, startY), (endX, endY),
-			# 	COLORS[idx], 2)
-			# y = startY - 15 if startY - 15 > 15 else startY + 15
-			# cv2.putText(frame, label, (startX, y),
-			# 	cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
+					tracker.init(smoothed, xV)
+					Interrup=True
+					InterrupInside=True
+				(success, box) = tracker.update(smoothed)
+				# print(success)
+				# print(CLASSES[idx])
 
-	# show the output frame
-	cv2.imshow("Frame", frame)
+				# print(success)
+				if success:
+					if xV is not None and InterrupInside:
+						# Interrup=False
+						(x, y, w, h) = [int(v) for v in box]
+						cv2.rectangle(frame, (x, y), (x + w, y + h),
+						(0, 255, 0), 2)
+						# newX=x
+						# newY=y
+						newX=x
+						newY=y
+						print("X ---> "+str(newX))
+						print("Y ----> "+str(newY))
+						xV = tuple(box)
+						Interrup=False
+						tracker.init(frame, xV)
+				# draw the prediction on the frame
+				# label = "{}: {:.2f}%".format(CLASSES[idx],
+				# 	confidence * 100)
+				# cv2.rectangle(frame, (startX, startY), (endX, endY),
+				# 	COLORS[idx], 2)
+				# y = startY - 15 if startY - 15 > 15 else startY + 15
+				# cv2.putText(frame, label, (startX, y),
+				# 	cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
+
+		# show the output frame
+		cv2.imshow("Frame", frame)
 	key = cv2.waitKey(1) & 0xFF
 
 	# if the `q` key was pressed, break from the loop
