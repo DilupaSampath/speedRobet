@@ -175,29 +175,16 @@ while True:
 							ard.close()
 						elif newX< 0:
 							ard = serial.Serial(port,9600,timeout=5)
-							ard.write('neck_left\r\n'.encode('utf-8'))
+							ard.write('neck_left'.encode('utf-8'))
 							ard.close()
+							print('neck_left')
 						elif newX> 100:
 							ard = serial.Serial(port,9600,timeout=5)
-							ard.write('neck_right\r\n'.encode('utf-8'))
+							ard.write('neck_right'.encode('utf-8'))
 							ard.close()
+							print('neck_right')
 						else:
 							print('no cmmand')
-						# 	# ard = serial.Serial(port,9600,timeout=5)
-						# 	# ard.write(b'neck_left')
-						# 	# print("Camera turn left *******")
-						# elif newX>= 100:
-						# 	# ard = serial.Serial(port,9600,timeout=5)
-						# 	# ard.write(b'neck_right')
-						# 	# print("Camera turn right *******")
-						# else:
-						# 	# print('')
-						# 	ard = serial.Serial(port,9600,timeout=5)
-						# 	ard.write(b'neck_left')
-						# 	ard.close()
-						# ard.close()
-
-						# xV = tuple(box)
 						Interrup=False
 						# tracker.init(frame, xV)
 				# draw the prediction on the frame
