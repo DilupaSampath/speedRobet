@@ -113,8 +113,8 @@ while True:
 
 				# filter out weak detections by ensuring the `confidence`
 				# is greater than the minimum confidence
-				if confidence < args["confidence"]:
-					continue
+				# if confidence < args["confidence"]:
+				# 	continue
 
 				# otherwise, extract the index of the class label from
 				# the `detections`, then compute the (x, y)-coordinates
@@ -140,17 +140,16 @@ while True:
 			        minSize=(35, 35)
 			    )
 				print(len(faces))
-				print(len(faces)>0)
 				print("len(faces)")
 				if Interrup and ((CLASSES[idx] == 'person') or len(faces)>0 ):
-					ard = serial.Serial(port,9600,timeout=5)
+					# ard = serial.Serial(port,9600,timeout=5)
 					# ard.write(b'start')
 					# time.sleep(10.0)
-					ard.write(b'stop')
-					ard.close()
+					# ard.write(b'stop')
+					# ard.close()
 					xV = tuple(box)
 					tracker.init(gray, xV)
-					Interrup=True
+					Interrup=False
 					InterrupInside=True
 				(success, box) = tracker.update(gray)
 				# print(success)
@@ -170,23 +169,23 @@ while True:
 						print("X ---> "+str(newX))
 						print("Y ----> "+str(newY))
 						if newX<= 100:
-							ard = serial.Serial(port,9600,timeout=5)
-							ard.write(b'neck_left')
+							# ard = serial.Serial(port,9600,timeout=5)
+							# ard.write(b'neck_left')
 							print("Camera turn left *******")
 						elif newX>= 100:
-							ard = serial.Serial(port,9600,timeout=5)
-							ard.write(b'neck_right')
+							# ard = serial.Serial(port,9600,timeout=5)
+							# ard.write(b'neck_right')
 							print("Camera turn right *******")
 						else:
 							print('')
-							ard = serial.Serial(port,9600,timeout=5)
-							ard.write(b'neck_left')
-							ard.close()
-						ard.close()
+						# 	ard = serial.Serial(port,9600,timeout=5)
+						# 	ard.write(b'neck_left')
+						# 	ard.close()
+						# ard.close()
 
 						xV = tuple(box)
 						Interrup=False
-						tracker.init(frame, xV)
+						# tracker.init(frame, xV)
 				# draw the prediction on the frame
 				# label = "{}: {:.2f}%".format(CLASSES[idx],
 				# 	confidence * 100)
