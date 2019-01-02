@@ -143,8 +143,7 @@ while True:
 				# print("len(faces)")
 				if Interrup and ((CLASSES[idx] == 'person') or len(faces)>0 ):
 					ard = serial.Serial(port,9600,timeout=5)
-
-					ard.write('stop/r'.encode('utf-8'))
+					ard.write('stop\r\n'.encode('utf-8'))
 					ard.close()
 					print('Stoped ***********')
 					xV = tuple(box)
@@ -170,7 +169,14 @@ while True:
 						newY=y
 						print("X ---> "+str(newX))
 						print("Y ----> "+str(newY))
-						# if newX<= 100:
+						if newX<= 50 and newX>=0:
+							ard = serial.Serial(port,9600,timeout=5)
+							ard.write('stop\r\n'.encode('utf-8'))
+							ard.close()
+						elif newX< 0:
+							ard = serial.Serial(port,9600,timeout=5)
+							ard.write('neck_left\r\n'.encode('utf-8'))
+							ard.close()
 						# 	# ard = serial.Serial(port,9600,timeout=5)
 						# 	# ard.write(b'neck_left')
 						# 	# print("Camera turn left *******")
