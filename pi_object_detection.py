@@ -123,15 +123,15 @@ while True:
 				dims = np.array([fW, fH, fW, fH])
 				box = detections[0, 0, i, 3:7] * dims
 				gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-				hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-				lower_red = np.array([30,150,50])
-				upper_red = np.array([255,255,180])
-				mask = cv2.inRange(hsv, lower_red, upper_red)
-				res = cv2.bitwise_and(frame,frame, mask= mask)
-				kernel = np.ones((15,15),np.float32)/225
-				smoothed = cv2.filter2D(res,-1,kernel)
-				res = cv2.bitwise_and(frame,frame, mask= mask)
+				#
+				# hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+				# lower_red = np.array([30,150,50])
+				# upper_red = np.array([255,255,180])
+				# mask = cv2.inRange(hsv, lower_red, upper_red)
+				# res = cv2.bitwise_and(frame,frame, mask= mask)
+				# kernel = np.ones((15,15),np.float32)/225
+				# smoothed = cv2.filter2D(res,-1,kernel)
+				# res = cv2.bitwise_and(frame,frame, mask= mask)
 				(startX, startY, endX, endY) = box.astype("int")
 				faces = faceCascade.detectMultiScale(
 			        gray,
@@ -140,18 +140,19 @@ while True:
 			        minSize=(35, 35)
 			    )
 				print(len(faces))
+				print(len(faces)>0)
 				print("len(faces)")
-				if Interrup and (CLASSES[idx] == 'person'):
+				if Interrup and ((CLASSES[idx] == 'person') or len(faces)>0 ):
 					ard = serial.Serial(port,9600,timeout=5)
 					# ard.write(b'start')
 					# time.sleep(10.0)
 					ard.write(b'stop')
 					ard.close()
 					xV = tuple(box)
-					tracker.init(smoothed, xV)
+					tracker.init(gray, xV)
 					Interrup=True
 					InterrupInside=True
-				(success, box) = tracker.update(smoothed)
+				(success, box) = tracker.update(gray)
 				# print(success)
 				# print(CLASSES[idx])
 
