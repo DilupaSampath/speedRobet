@@ -177,6 +177,12 @@ while True:
 							ard = serial.Serial(port,9600,timeout=5)
 							ard.write('neck_left\r\n'.encode('utf-8'))
 							ard.close()
+						elif newX> 100:
+							ard = serial.Serial(port,9600,timeout=5)
+							ard.write('neck_right\r\n'.encode('utf-8'))
+							ard.close()
+						else:
+							print('no cmmand')
 						# 	# ard = serial.Serial(port,9600,timeout=5)
 						# 	# ard.write(b'neck_left')
 						# 	# print("Camera turn left *******")
