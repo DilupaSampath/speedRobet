@@ -133,14 +133,14 @@ while True:
 				smoothed = cv2.filter2D(res,-1,kernel)
 				res = cv2.bitwise_and(frame,frame, mask= mask)
 				(startX, startY, endX, endY) = box.astype("int")
-				# faces = faceCascade.detectMultiScale(
-			    #     gray,
-			    #     scaleFactor=1.1,
-			    #     minNeighbors=5,
-			    #     minSize=(35, 35)
-			    # )
-				# print(len(faces))
-				# print(len(faces))
+				faces = faceCascade.detectMultiScale(
+			        gray,
+			        scaleFactor=1.1,
+			        minNeighbors=5,
+			        minSize=(35, 35)
+			    )
+				print(len(faces))
+				print("len(faces)")
 				if Interrup and (CLASSES[idx] == 'person'):
 					ard = serial.Serial(port,9600,timeout=5)
 					# ard.write(b'start')
@@ -179,6 +179,7 @@ while True:
 						else:
 							print('')
 							ard = serial.Serial(port,9600,timeout=5)
+							ard.write(b'neck_left')
 							ard.close()
 						ard.close()
 
