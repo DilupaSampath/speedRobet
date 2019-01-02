@@ -84,7 +84,7 @@ xV=None
 co = True
 Interrup=False
 InterrupInside=False
-st=True
+neckState=True
 # loop over the frames from the video stream
 while True:
 	# grab the frame from the threaded video stream, resize it, and
@@ -144,7 +144,7 @@ while True:
 				# print("len(faces)")
 				if Interrup and ((CLASSES[idx] == 'person') or len(faces)>0 ):
 					ard = serial.Serial(port,9600,timeout=5)
-					ard.write('stop\r\n'.encode('utf-8'))
+					ard.write('stop\r\n'.encode())
 					ard.close()
 					print('Stoped ***********')
 					xV = tuple(box)
@@ -158,9 +158,8 @@ while True:
 				# print(xV)
 
 				# print(success)
-
 				if success:
-					if xV is not None and InterrupInside and st:
+					if xV is not None and InterrupInside:
 						# Interrup=False
 						(x, y, w, h) = [int(v) for v in box]
 						cv2.rectangle(frame, (x, y), (x + w, y + h),
@@ -173,21 +172,39 @@ while True:
 						print("Y ----> "+str(newY))
 						if newX<= 50 and newX>=0:
 							ard = serial.Serial(port,9600,timeout=5)
-							ard.write('stop\r\n'.encode('utf-8'))
+							ard.write('stop\r\n'.encode())
 							ard.close()
-						elif newX< 0:
+							neckState=True
+							print('middle')
+						elif newX< 0 and neckState:
 							ard = serial.Serial(port,9600,timeout=5)
-							ard.write('neck_left'.encode('utf-8'))
+							ard.write('neck_left\r\n'.encode())
 							ard.close()
+							neckState=False
 							print('neck_left')
-						elif newX> 100:
+						elif newX> 100 and neckState:
 							ard = serial.Serial(port,9600,timeout=5)
-							ard.write('neck_right'.encode('utf-8'))
+							ard.write('neck_right\r\n'.encode())
 							ard.close()
-							st=False
+							neckState=False
 							print('neck_right')
 						else:
 							print('no cmmand')
+						# 	# ard = serial.Serial(port,9600,timeout=5)
+						# 	# ard.write(b'neck_left')
+						# 	# print("Camera turn left *******")
+						# elif newX>= 100:
+						# 	# ard = serial.Serial(port,9600,timeout=5)
+						# 	# ard.write(b'neck_right')
+						# 	# print("Camera turn right *******")
+						# else:
+						# 	# print('')
+						# 	ard = serial.Serial(port,9600,timeout=5)
+						# 	ard.write(b'neck_left')
+						# 	ard.close()
+						# ard.close()
+
+						# xV = tuple(box)
 						Interrup=False
 						# tracker.init(frame, xV)
 				# draw the prediction on the frame
