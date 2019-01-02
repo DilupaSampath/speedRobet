@@ -9,6 +9,7 @@ import argparse
 import imutils
 import time
 import cv2
+import serial
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -36,10 +37,16 @@ net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
 # and initialize the FPS counter
 print("[INFO] starting video stream...")
 vs = VideoStream(src=0).start()
+port = '/dev/ttyACM2'
 # vs = VideoStream(usePiCamera=True).start()
 time.sleep(2.0)
 fps = FPS().start()
-
+xV=None
+co = True
+Interrup=False
+InterrupInside=False
+neckState=True
+lastState=-1
 # loop over the frames from the video stream
 while True:
 	# grab the frame from the threaded video stream and resize it
@@ -74,13 +81,45 @@ while True:
 			(startX, startY, endX, endY) = box.astype("int")
 
 			# draw the prediction on the frame
-			label = "{}: {:.2f}%".format(CLASSES[idx],
-				confidence * 100)
-			cv2.rectangle(frame, (startX, startY), (endX, endY),
+			# label = "{}: {:.2f}%".format(CLASSES[idx],
+			# 	confidence * 100)
+			if CLASSES[idx]=='person':
+				cv2.rectangle(frame, (startX, startY), (endX, endY),
 				COLORS[idx], 2)
-			y = startY - 15 if startY - 15 > 15 else startY + 15
-			cv2.putText(frame, label, (startX, y),
-				cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
+				y = startY - 15 if startY - 15 > 15 else startY + 15
+			# cv2.putText(frame, label, (startX, y),
+			# 	cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
+			newX=startX
+			newY=startY
+			print("X ---> "+str(newX))
+			print("Y ----> "+str(newY))
+			if newX<= 50 and newX>=0 and lastState !=0:
+				ard = serial.Serial(port,9600)
+				ard.write('stop\r\n'.encode())
+				ard.close()
+				neckState=True
+				print('middle')
+				lastState=0
+			elif newX <= 0 and neckState:
+				ard = serial.Serial(port,9600)
+				# ard.write('stop\r\n'.encode())
+				ard.write('neck_left\r\n'.encode())
+				# ard.close()
+				print('neck_left ****************************')
+				# time.sleep(10.0)
+				neckState=False
+				lastState=-1
+			elif newX >=100 and neckState:
+				ard = serial.Serial(port,9600)
+				# ard.write('stop\r\n'.encode())
+				ard.write('neck_right\r\n'.encode())
+				# ard.close()
+				print('neck_right $$$$$$$$$$$$$$$$$$$$$$$$$$$')
+				# time.sleep(10.0)
+				neckState=False
+				lastState=1
+			else:
+				a =1
 
 	# show the output frame
 	cv2.imshow("Frame", frame)

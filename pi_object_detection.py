@@ -14,8 +14,8 @@ import cv2
 import serial
 
 # ser = serial.Serial('ttyACM1', baudrate = 9600, timeout=1)
-port = '/dev/ttyACM0'
-
+port = '/dev/ttyACM2'
+ard = serial.Serial(port,9600)
 def classify_frame(net, inputQueue, outputQueue):
 	# keep looping
 	while True:
@@ -85,6 +85,7 @@ co = True
 Interrup=False
 InterrupInside=False
 neckState=True
+lastState=-1
 # loop over the frames from the video stream
 while True:
 	# grab the frame from the threaded video stream, resize it, and
@@ -124,98 +125,59 @@ while True:
 				dims = np.array([fW, fH, fW, fH])
 				box = detections[0, 0, i, 3:7] * dims
 				gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-				#
-				# hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-				# lower_red = np.array([30,150,50])
-				# upper_red = np.array([255,255,180])
-				# mask = cv2.inRange(hsv, lower_red, upper_red)
-				# res = cv2.bitwise_and(frame,frame, mask= mask)
-				# kernel = np.ones((15,15),np.float32)/225
-				# smoothed = cv2.filter2D(res,-1,kernel)
-				# res = cv2.bitwise_and(frame,frame, mask= mask)
-				(startX, startY, endX, endY) = box.astype("int")
-				faces = faceCascade.detectMultiScale(
-			        gray,
-			        scaleFactor=1.1,
-			        minNeighbors=5,
-			        minSize=(35, 35)
-			    )
+				# (startX, startY, endX, endY) = box.astype("int")
+				# faces = faceCascade.detectMultiScale(
+			    #     gray,
+			    #     scaleFactor=1.1,
+			    #     minNeighbors=5,
+			    #     minSize=(35, 35)
+			    # )
 				# print(len(faces))
 				# print("len(faces)")
-				if Interrup and ((CLASSES[idx] == 'person') or len(faces)>0 ):
-					ard = serial.Serial(port,9600,timeout=5)
-					ard.write('stop\r\n'.encode())
-					ard.close()
-					print('Stoped ***********')
+				if Interrup and ((CLASSES[idx] == 'person')):
 					xV = tuple(box)
 					tracker.init(gray, xV)
 					Interrup=False
 					InterrupInside=True
 				(success, box) = tracker.update(gray)
-				# print(success)
-				# if success:
-				# 	print("Detection status")
-				# print(xV)
-
-				# print(success)
 				if success:
 					if xV is not None and InterrupInside:
 						# Interrup=False
 						(x, y, w, h) = [int(v) for v in box]
 						cv2.rectangle(frame, (x, y), (x + w, y + h),
 						(0, 255, 0), 2)
-						# newX=x
-						# newY=y
 						newX=x
 						newY=y
 						print("X ---> "+str(newX))
 						print("Y ----> "+str(newY))
-						if newX<= 50 and newX>=0:
-							ard = serial.Serial(port,9600,timeout=5)
+						if newX<= 50 and newX>=0 and lastState !=0:
+							# ard = serial.Serial(port,9600)
 							ard.write('stop\r\n'.encode())
-							ard.close()
+							# ard.close()
 							neckState=True
 							print('middle')
-						elif newX< 0 and neckState:
-							ard = serial.Serial(port,9600,timeout=5)
+							lastState=0
+						elif newX <= 0 and neckState:
+							# ard = serial.Serial(port,9600)
+							# ard.write('stop\r\n'.encode())
 							ard.write('neck_left\r\n'.encode())
-							ard.close()
+							# ard.close()
+							print('neck_left ****************************')
+							# time.sleep(10.0)
 							neckState=False
-							print('neck_left')
-						elif newX> 100 and neckState:
-							ard = serial.Serial(port,9600,timeout=5)
+							lastState=-1
+						elif newX >=100 and neckState:
+							# ard = serial.Serial(port,9600)
+							# ard.write('stop\r\n'.encode())
 							ard.write('neck_right\r\n'.encode())
-							ard.close()
+							# ard.close()
+							print('neck_right $$$$$$$$$$$$$$$$$$$$$$$$$$$')
+							# time.sleep(10.0)
 							neckState=False
-							print('neck_right')
+							lastState=1
 						else:
-							print('no cmmand')
-						# 	# ard = serial.Serial(port,9600,timeout=5)
-						# 	# ard.write(b'neck_left')
-						# 	# print("Camera turn left *******")
-						# elif newX>= 100:
-						# 	# ard = serial.Serial(port,9600,timeout=5)
-						# 	# ard.write(b'neck_right')
-						# 	# print("Camera turn right *******")
-						# else:
-						# 	# print('')
-						# 	ard = serial.Serial(port,9600,timeout=5)
-						# 	ard.write(b'neck_left')
-						# 	ard.close()
-						# ard.close()
-
-						# xV = tuple(box)
+							a =1
 						Interrup=False
-						# tracker.init(frame, xV)
-				# draw the prediction on the frame
-				# label = "{}: {:.2f}%".format(CLASSES[idx],
-				# 	confidence * 100)
-				# cv2.rectangle(frame, (startX, startY), (endX, endY),
-				# 	COLORS[idx], 2)
-				# y = startY - 15 if startY - 15 > 15 else startY + 15
-				# cv2.putText(frame, label, (startX, y),
-				# 	cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
-
 		# show the output frame
 		cv2.imshow("Frame", frame)
 	key = cv2.waitKey(1) & 0xFF
