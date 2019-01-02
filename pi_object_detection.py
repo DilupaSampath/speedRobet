@@ -171,9 +171,11 @@ while True:
 						if newX<= 100:
 							ard = serial.Serial(port,9600,timeout=5)
 							ard.write(b'neck_left')
+							print("Camera turn left *******")
 						elif newX>= 100:
 							ard = serial.Serial(port,9600,timeout=5)
 							ard.write(b'neck_right')
+							print("Camera turn right *******")
 						else:
 							print('')
 							ard = serial.Serial(port,9600,timeout=5)
