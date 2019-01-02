@@ -139,8 +139,8 @@ while True:
 			        minNeighbors=5,
 			        minSize=(35, 35)
 			    )
-				print(len(faces))
-				print("len(faces)")
+				# print(len(faces))
+				# print("len(faces)")
 				if Interrup and ((CLASSES[idx] == 'person') or len(faces)>0 ):
 					ard = serial.Serial(port,9600,timeout=5)
 
@@ -152,10 +152,10 @@ while True:
 					Interrup=False
 					InterrupInside=True
 				(success, box) = tracker.update(gray)
-				print(success)
-				if success:
-					print("Detection status")
-				print(xV)
+				# print(success)
+				# if success:
+				# 	print("Detection status")
+				# print(xV)
 
 				# print(success)
 				if success:
