@@ -84,6 +84,7 @@ xV=None
 co = True
 Interrup=False
 InterrupInside=False
+st=True
 # loop over the frames from the video stream
 while True:
 	# grab the frame from the threaded video stream, resize it, and
@@ -157,8 +158,9 @@ while True:
 				# print(xV)
 
 				# print(success)
+
 				if success:
-					if xV is not None and InterrupInside:
+					if xV is not None and InterrupInside and st:
 						# Interrup=False
 						(x, y, w, h) = [int(v) for v in box]
 						cv2.rectangle(frame, (x, y), (x + w, y + h),
@@ -182,6 +184,7 @@ while True:
 							ard = serial.Serial(port,9600,timeout=5)
 							ard.write('neck_right'.encode('utf-8'))
 							ard.close()
+							st=False
 							print('neck_right')
 						else:
 							print('no cmmand')
