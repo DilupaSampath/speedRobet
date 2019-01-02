@@ -143,8 +143,9 @@ while True:
 				print("len(faces)")
 				if Interrup and ((CLASSES[idx] == 'person') or len(faces)>0 ):
 					ard = serial.Serial(port,9600,timeout=5)
-					ard.write(str('stop'))
-					# ard.close()
+
+					ard.write('stop/r'.encode('utf-8'))
+					ard.close()
 					xV = tuple(box)
 					tracker.init(gray, xV)
 					Interrup=False
