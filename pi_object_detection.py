@@ -54,7 +54,7 @@ CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
 	"sofa", "train", "tvmonitor"]
 COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
 tracker_type='CSRT'
-tracker = cv2.TrackerCSRT_create()
+tracker = cv2.TrackerMOSSE_create()
 # load our serialized model from disk
 print("[INFO] loading model...")
 net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
@@ -75,7 +75,7 @@ p.start()
 
 # initialize the video stream, allow the cammera sensor to warmup,
 # and initialize the FPS counter
-print("[INFO] starting video stream...")
+print("[INFO] starting vidfpseo stream...")
 vs = VideoStream(src=0).start()
 # vs = VideoStream(usePiCamera=True).start()
 time.sleep(2.0)
@@ -143,17 +143,17 @@ while True:
 				print("len(faces)")
 				if Interrup and ((CLASSES[idx] == 'person') or len(faces)>0 ):
 					ard = serial.Serial(port,9600,timeout=5)
-					# ard.write(b'start')
-					# time.sleep(10.0)
 					ard.write(b'stop')
-					ard.close()
+					# ard.close()
 					xV = tuple(box)
 					tracker.init(gray, xV)
 					Interrup=False
 					InterrupInside=True
 				(success, box) = tracker.update(gray)
-				# print(success)
-				# print(CLASSES[idx])
+				print(success)
+				if success:
+					print("Detection status")
+				print(xV)
 
 				# print(success)
 				if success:
@@ -166,24 +166,24 @@ while True:
 						# newY=y
 						newX=x
 						newY=y
-						print("X ---> "+str(newX))
-						print("Y ----> "+str(newY))
-						if newX<= 100:
-							# ard = serial.Serial(port,9600,timeout=5)
-							# ard.write(b'neck_left')
-							print("Camera turn left *******")
-						elif newX>= 100:
-							# ard = serial.Serial(port,9600,timeout=5)
-							# ard.write(b'neck_right')
-							print("Camera turn right *******")
-						else:
-							print('')
+						# print("X ---> "+str(newX))
+						# print("Y ----> "+str(newY))
+						# if newX<= 100:
+						# 	# ard = serial.Serial(port,9600,timeout=5)
+						# 	# ard.write(b'neck_left')
+						# 	# print("Camera turn left *******")
+						# elif newX>= 100:
+						# 	# ard = serial.Serial(port,9600,timeout=5)
+						# 	# ard.write(b'neck_right')
+						# 	# print("Camera turn right *******")
+						# else:
+						# 	# print('')
 						# 	ard = serial.Serial(port,9600,timeout=5)
 						# 	ard.write(b'neck_left')
 						# 	ard.close()
 						# ard.close()
 
-						xV = tuple(box)
+						# xV = tuple(box)
 						Interrup=False
 						# tracker.init(frame, xV)
 				# draw the prediction on the frame
