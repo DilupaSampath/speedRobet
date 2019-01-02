@@ -146,6 +146,7 @@ while True:
 
 					ard.write('stop/r'.encode('utf-8'))
 					ard.close()
+					print('Stoped ***********')
 					xV = tuple(box)
 					tracker.init(gray, xV)
 					Interrup=False
