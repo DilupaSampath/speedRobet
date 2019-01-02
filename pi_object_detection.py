@@ -168,8 +168,8 @@ while True:
 						# newY=y
 						newX=x
 						newY=y
-						# print("X ---> "+str(newX))
-						# print("Y ----> "+str(newY))
+						print("X ---> "+str(newX))
+						print("Y ----> "+str(newY))
 						# if newX<= 100:
 						# 	# ard = serial.Serial(port,9600,timeout=5)
 						# 	# ard.write(b'neck_left')
